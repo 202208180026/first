@@ -1,0 +1,2214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信 - 整蛊版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            color: #333;
+            padding: 0;
+            position: relative;
+        }
+
+        /* 手机容器 */
+        .phone-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background: white;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 手机状态栏 */
+        .status-bar {
+            background: #1AAD19;
+            color: white;
+            padding: 5px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            height: 30px;
+        }
+
+        .status-left, .status-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-left i, .status-right i {
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .status-center {
+            font-weight: bold;
+        }
+
+        /* 微信顶部状态栏 */
+        .wechat-header {
+            background: #1AAD19;
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .wechat-header i {
+            font-size: 18px;
+        }
+
+        /* 页面内容区域 */
+        .page {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            background: #f5f5f5;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* 微信底部导航 */
+        .wechat-footer {
+            background: #F5F5F5;
+            padding: 8px 0;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #E0E0E0;
+            z-index: 10;
+        }
+
+        .footer-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #7F7F7F;
+            font-size: 12px;
+            padding: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .footer-item i {
+            font-size: 22px;
+            margin-bottom: 3px;
+        }
+
+        .footer-item.active {
+            color: #1AAD19;
+        }
+
+        /* 对话列表页面样式 */
+        .chat-list {
+            background: white;
+        }
+
+        .chat-item {
+            display: flex;
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .chat-item:hover {
+            background: #f9f9f9;
+        }
+
+        .chat-item:last-child {
+            border-bottom: none;
+        }
+
+        .chat-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #1AAD19;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 12px;
+            overflow: hidden;
+        }
+
+        .chat-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .chat-content {
+            flex: 1;
+        }
+
+        .chat-name {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .chat-preview {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .chat-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 聊天对话框页面样式 */
+        .chat-page {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-page.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: #1AAD19;
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f5f5f5;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+        }
+
+        .message.self {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .message.other .message-bubble {
+            background: #e5e5ea;
+            border-top-left-radius: 5px;
+        }
+
+        .message.self .message-bubble {
+            background: #1AAD19;
+            color: white;
+            border-top-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        /* 输入框样式 */
+        .input-area {
+            display: flex;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-area input {
+            flex: 1;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            background: #f5f5f5;
+            outline: none;
+        }
+
+        .input-area button {
+            background: #1AAD19;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+            box-shadow: none;
+        }
+
+        /* 小狗页面样式 */
+        .dog-page-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #ffafbd, #ffc3a0);
+        }
+
+        .dog-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .dog-message {
+            font-size: 22px;
+            margin-bottom: 25px;
+            color: #ff6b6b;
+            font-weight: bold;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .dog-face {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 25px;
+        }
+
+        .dog-face .face {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: #f9e3b7;
+            border-radius: 50%;
+            top: 15px;
+            left: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+
+        .dog-face .ear {
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            background: #e6c89c;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .dog-face .ear.left {
+            top: 0;
+            left: 10px;
+            transform: rotate(-30deg);
+        }
+
+        .dog-face .ear.right {
+            top: 0;
+            right: 10px;
+            transform: rotate(30deg);
+        }
+
+        .dog-face .eye {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            top: 50px;
+            border: 2px solid #333;
+            animation: blink 4s infinite;
+            z-index: 3;
+        }
+
+        .dog-face .eye.left {
+            left: 35px;
+        }
+
+        .dog-face .eye.right {
+            right: 35px;
+        }
+
+        .dog-face .pupil {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #333;
+            border-radius: 50%;
+            top: 7px;
+            left: 7px;
+            animation: look-around 5s infinite alternate;
+        }
+
+        .dog-face .nose {
+            position: absolute;
+            width: 25px;
+            height: 15px;
+            background: #333;
+            border-radius: 50%;
+            top: 85px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+        }
+
+        .dog-face .mouth {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            border-bottom: 3px solid #333;
+            border-radius: 0 0 20px 20px;
+            top: 105px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: smile 3s infinite alternate;
+            z-index: 3;
+        }
+
+        .dog-face .tail {
+            position: absolute;
+            width: 40px;
+            height: 60px;
+            background: #e6c89c;
+            border-radius: 50%;
+            bottom: 10px;
+            right: 5px;
+            transform-origin: bottom center;
+            animation: wag 2s infinite alternate;
+            z-index: 1;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            min-width: 100px;
+        }
+
+        #yes-btn {
+            background-color: #1AAD19;
+            color: white;
+        }
+
+        #no-btn {
+            background-color: #E64340;
+            color: white;
+            position: relative;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .counter {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ff6b6b;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .success-message {
+            font-size: 18px;
+            margin-top: 15px;
+            color: #1AAD19;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* 朋友页面样式 */
+        .moment-list {
+            background: white;
+        }
+
+        .moment-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .moment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .moment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #1AAD19;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+
+        .moment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .moment-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .moment-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .moment-content {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .moment-image {
+            width: 100%;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background: #f0f0f0;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            overflow: hidden;
+        }
+
+        .moment-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .moment-actions {
+            display: flex;
+            justify-content: space-between;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .action-btn:hover {
+            color: #1AAD19;
+        }
+
+        .action-btn.liked {
+            color: #ff6b6b;
+        }
+
+        .action-btn i {
+            margin-right: 5px;
+        }
+
+        /* 设置页面样式 */
+        .settings-list {
+            background: white;
+        }
+
+        .settings-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .settings-item:hover {
+            background: #f9f9f9;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            background: #1AAD19;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .settings-content {
+            flex: 1;
+        }
+
+        .settings-name {
+            font-size: 16px;
+        }
+
+        .settings-desc {
+            font-size: 12px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .settings-arrow {
+            color: #ccc;
+        }
+
+        /* 整蛊小游戏样式 */
+        .prank-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .prank-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+            animation: popIn 0.5s ease-out;
+        }
+
+        .prank-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #ff6b6b;
+        }
+
+        .prank-message {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .prank-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .prank-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .prank-btn.confirm {
+            background: #1AAD19;
+            color: white;
+        }
+
+        .prank-btn.cancel {
+            background: #E64340;
+            color: white;
+        }
+
+        /* 五子棋游戏样式 */
+        .game-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .game-content {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+            animation: popIn 0.5s ease-out;
+        }
+
+        .game-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #1AAD19;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            grid-template-rows: repeat(15, 1fr);
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 15px;
+            background: #e6c89c;
+            border: 1px solid #333;
+        }
+
+        .game-cell {
+            border: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .game-cell:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .game-piece {
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+        }
+
+        .game-piece.black {
+            background: #000;
+        }
+
+        .game-piece.white {
+            background: #fff;
+            border: 1px solid #ccc;
+        }
+
+        .game-info {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .game-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .game-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .game-btn.restart {
+            background: #1AAD19;
+            color: white;
+        }
+
+        .game-btn.exit {
+            background: #E64340;
+            color: white;
+        }
+
+        /* 记忆力测试游戏样式 */
+        .memory-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .memory-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+            animation: popIn 0.5s ease-out;
+        }
+
+        .memory-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #1AAD19;
+        }
+
+        .memory-level {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .memory-number {
+            font-size: 28px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .memory-input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+        }
+
+        .memory-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .memory-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .memory-btn.submit {
+            background: #1AAD19;
+            color: white;
+        }
+
+        .memory-btn.exit {
+            background: #E64340;
+            color: white;
+        }
+
+        /* 鬼畜动画 */
+        .shake {
+            animation: shake 0.5s infinite;
+        }
+
+        .spin {
+            animation: spin 2s infinite linear;
+        }
+
+        .bounce {
+            animation: bounce 0.5s infinite alternate;
+        }
+
+        /* 动画定义 */
+        @keyframes blink {
+            0%, 45%, 55%, 100% { height: 30px; }
+            48%, 52% { height: 2px; }
+        }
+
+        @keyframes look-around {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(3px, 2px); }
+            50% { transform: translate(-2px, -1px); }
+            75% { transform: translate(1px, 2px); }
+        }
+
+        @keyframes smile {
+            0% { width: 30px; }
+            100% { width: 45px; }
+        }
+
+        @keyframes wag {
+            0% { transform: rotate(-15deg); }
+            100% { transform: rotate(15deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 对话框 */
+        .chat-bubble {
+            position: absolute;
+            background: white;
+            border-radius: 15px;
+            padding: 10px 15px;
+            max-width: 200px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            z-index: 5;
+            animation: bubble-float 3s ease-in-out infinite;
+        }
+
+        .chat-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: white transparent;
+        }
+
+        .bubble-left {
+            top: 30px;
+            left: -180px;
+        }
+
+        .bubble-right {
+            top: 30px;
+            right: -180px;
+        }
+
+        @keyframes bubble-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            cursor: pointer;
+        }
+
+        /* 整蛊触发区域 */
+        .prank-trigger {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: transparent;
+            z-index: 5;
+        }
+
+        .prank-trigger.top-left {
+            top: 10px;
+            left: 10px;
+        }
+
+        .prank-trigger.top-right {
+            top: 10px;
+            right: 10px;
+        }
+
+        .prank-trigger.bottom-left {
+            bottom: 60px;
+            left: 10px;
+        }
+
+        .prank-trigger.bottom-right {
+            bottom: 60px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+<!-- 手机容器 -->
+<div class="phone-container">
+    <!-- 整蛊小游戏容器 -->
+    <div class="prank-container" id="prank-container">
+        <div class="prank-content" id="prank-content">
+            <div class="prank-title" id="prank-title">整蛊小游戏</div>
+            <div class="prank-message" id="prank-message">你发现了一个隐藏功能！</div>
+            <div class="prank-buttons">
+                <button class="prank-btn confirm" id="prank-confirm">确定</button>
+                <button class="prank-btn cancel" id="prank-cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 五子棋游戏容器 -->
+    <div class="game-container" id="game-container">
+        <div class="game-content">
+            <div class="game-title" id="game-title">五子棋游戏</div>
+            <div class="game-info" id="game-info">黑子先行</div>
+            <div class="game-board" id="game-board"></div>
+            <div class="game-buttons">
+                <button class="game-btn restart" id="game-restart">重新开始</button>
+                <button class="game-btn exit" id="game-exit">退出游戏</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 记忆力测试游戏容器 -->
+    <div class="memory-container" id="memory-container">
+        <div class="memory-content">
+            <div class="memory-title" id="memory-title">记忆力测试</div>
+            <div class="memory-level" id="memory-level">第 1 关</div>
+            <div class="memory-number" id="memory-number">12345</div>
+            <input type="text" class="memory-input" id="memory-input" placeholder="请输入刚才的数字">
+            <div class="memory-buttons">
+                <button class="memory-btn submit" id="memory-submit">提交</button>
+                <button class="memory-btn exit" id="memory-exit">退出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 手机状态栏 -->
+    <div class="status-bar">
+        <div class="status-left">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+        </div>
+        <div class="status-center">微信</div>
+        <div class="status-right">
+            <i class="fas fa-battery-three-quarters"></i>
+        </div>
+    </div>
+
+    <!-- 微信顶部 -->
+    <div class="wechat-header">
+        <i class="fas fa-chevron-left back-btn" id="back-btn"></i>
+        <span id="page-title">微信</span>
+        <i class="fas fa-ellipsis-v"></i>
+    </div>
+
+    <!-- 整蛊触发区域 -->
+    <div class="prank-trigger top-left" id="prank-trigger-1"></div>
+    <div class="prank-trigger top-right" id="prank-trigger-2"></div>
+    <div class="prank-trigger bottom-left" id="prank-trigger-3"></div>
+    <div class="prank-trigger bottom-right" id="prank-trigger-4"></div>
+
+    <!-- 对话列表页面 -->
+    <div class="page active" id="chat-list-page">
+        <div class="chat-list">
+            <div class="chat-item" data-id="dog">
+                <div class="chat-avatar">
+                    <img src="2.jpg?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="小狗">
+                </div>
+                <div class="chat-content">
+                    <div class="chat-name">夏茗</div>
+                    <div class="chat-preview">做我的主人好不好？</div>
+                </div>
+                <div class="chat-time">刚刚</div>
+            </div>
+            <div class="chat-item" data-id="girl">
+                <div class="chat-avatar">
+                    <img src="1.jpg?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Liuu">
+                </div>
+                <div class="chat-content">
+                    <div class="chat-name">Liuu</div>
+                    <div class="chat-preview">今天天气真好！</div>
+                </div>
+                <div class="chat-time">10:30</div>
+            </div>
+            <div class="chat-item" data-id="boy">
+                <div class="chat-avatar">
+                    <img src="yaopingan.jpg?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="要平安">
+                </div>
+                <div class="chat-content">
+                    <div class="chat-name">要平安</div>
+                    <div class="chat-preview">周末一起出去玩吗？</div>
+                </div>
+                <div class="chat-time">昨天</div>
+            </div>
+            <div class="chat-item" data-id="prank">
+                <div class="chat-avatar">
+                    <img src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="神秘人">
+                </div>
+                <div class="chat-content">
+                    <div class="chat-name">神秘人</div>
+                    <div class="chat-preview">点击我有惊喜...</div>
+                </div>
+                <div class="chat-time">未知</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 聊天对话框页面 -->
+    <div class="chat-page" id="dog-chat-page">
+        <div class="chat-header">
+            <i class="fas fa-chevron-left back-to-list"></i>
+            <span>夏茗</span>
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+        <div class="chat-messages">
+            <div class="message other">
+                <div class="message-bubble">
+                    你好呀，我是可爱的小狗！
+                </div>
+            </div>
+            <div class="message self">
+                <div class="message-bubble">
+                    你好可爱啊！
+                </div>
+            </div>
+            <div class="message other">
+                <div class="message-bubble">
+                    做我的主人好不好？我会很乖的！
+                </div>
+            </div>
+            <div class="message-time">15:30</div>
+        </div>
+        <div class="input-area">
+            <input type="text" placeholder="输入消息...">
+            <button><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="chat-page" id="girl-chat-page">
+        <div class="chat-header">
+            <i class="fas fa-chevron-left back-to-list"></i>
+            <span>Liuu</span>
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+        <div class="chat-messages">
+            <div class="message other">
+                <div class="message-bubble">
+                    嗨，今天天气真不错！
+                </div>
+            </div>
+            <div class="message self">
+                <div class="message-bubble">
+                    是啊，适合出去散步！
+                </div>
+            </div>
+            <div class="message-time">10:30</div>
+        </div>
+        <div class="input-area">
+            <input type="text" placeholder="输入消息...">
+            <button><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="chat-page" id="boy-chat-page">
+        <div class="chat-header">
+            <i class="fas fa-chevron-left back-to-list"></i>
+            <span>要平安</span>
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+        <div class="chat-messages">
+            <div class="message other">
+                <div class="message-bubble">
+                    周末有空吗？一起出去玩？
+                </div>
+            </div>
+            <div class="message self">
+                <div class="message-bubble">
+                    好啊，你想去哪里？
+                </div>
+            </div>
+            <div class="message-time">昨天</div>
+        </div>
+        <div class="input-area">
+            <input type="text" placeholder="输入消息...">
+            <button><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="chat-page" id="prank-chat-page">
+        <div class="chat-header">
+            <i class="fas fa-chevron-left back-to-list"></i>
+            <span>神秘人</span>
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+        <div class="chat-messages">
+            <div class="message other">
+                <div class="message-bubble">
+                    嘿嘿，你找到我了！
+                </div>
+            </div>
+            <div class="message other">
+                <div class="message-bubble">
+                    想不想玩点有趣的？
+                </div>
+            </div>
+            <div class="message other">
+                <div class="message-bubble">
+                    来玩五子棋吧！点击下方按钮开始游戏。
+                </div>
+            </div>
+            <div class="message-time">未知</div>
+        </div>
+        <div class="input-area">
+            <input type="text" placeholder="输入消息...">
+            <button id="start-game-btn"><i class="fas fa-chess-board"></i></button>
+        </div>
+    </div>
+
+    <!-- 小狗页面 -->
+    <div class="page" id="dog-page">
+        <div class="dog-page-content">
+            <div class="dog-container">
+                <div class="dog-message">你是人机嘛？ 🐾</div>
+
+                <div class="dog-face">
+                    <!-- 对话框 -->
+                    <div class="chat-bubble bubble-left">选"是"嘛~ 呵呵，人机！</div>
+                    <div class="chat-bubble bubble-right">是你是你！人机！</div>
+
+                    <!-- 纯CSS绘制的小狗 -->
+                    <div class="ear left"></div>
+                    <div class="ear right"></div>
+                    <div class="face">
+                        <div class="eye left">
+                            <div class="pupil"></div>
+                        </div>
+                        <div class="eye right">
+                            <div class="pupil"></div>
+                        </div>
+                        <div class="nose"></div>
+                        <div class="mouth"></div>
+                    </div>
+                    <div class="tail"></div>
+                </div>
+
+                <!-- 互动按钮 -->
+                <div class="buttons">
+                    <button id="yes-btn">是</button>
+                    <button id="no-btn">不是</button>
+                </div>
+
+                <!-- 响应消息 -->
+                <div id="success-message" class="success-message">太棒了！你终于明白你很人机哎！ ❤️</div>
+
+                <!-- 计数器 -->
+                <div class="counter">5</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 朋友页面 -->
+    <div class="page" id="friends-page">
+        <div class="moment-list">
+            <div class="moment-item">
+                <div class="moment-header">
+                    <div class="moment-avatar">
+                        <img src="https://images.unsplash.com/photo-1552053831-71594a27632d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="小狗">
+                    </div>
+                    <div>
+                        <div class="moment-name">夏茗</div>
+                        <div class="moment-time">刚刚</div>
+                    </div>
+                </div>
+                <div class="moment-content">
+                    今天天气真好，适合出去散步！有谁愿意带我出去玩吗？
+                </div>
+                <div class="moment-image">
+                    <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="小狗照片">
+                </div>
+                <div class="moment-actions">
+                    <div class="action-btn like-btn" data-likes="12">
+                        <i class="far fa-heart"></i>
+                        <span class="like-count">12</span>
+                    </div>
+                    <div class="action-btn">
+                        <i class="far fa-comment"></i>
+                        <span>3</span>
+                    </div>
+                </div>
+            </div>
+            <div class="moment-item">
+                <div class="moment-header">
+                    <div class="moment-avatar">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="Liuu">
+                    </div>
+                    <div>
+                        <div class="moment-name">Liuu</div>
+                        <div class="moment-time">2小时前</div>
+                    </div>
+                </div>
+                <div class="moment-content">
+                    今天做了一道超级好吃的菜，分享给大家！
+                </div>
+                <div class="moment-image">
+                    <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="美食照片">
+                </div>
+                <div class="moment-actions">
+                    <div class="action-btn like-btn" data-likes="24">
+                        <i class="far fa-heart"></i>
+                        <span class="like-count">24</span>
+                    </div>
+                    <div class="action-btn">
+                        <i class="far fa-comment"></i>
+                        <span>7</span>
+                    </div>
+                </div>
+            </div>
+            <div class="moment-item">
+                <div class="moment-header">
+                    <div class="moment-avatar">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="要平安">
+                    </div>
+                    <div>
+                        <div class="moment-name">要平安</div>
+                        <div class="moment-time">昨天</div>
+                    </div>
+                </div>
+                <div class="moment-content">
+                    周末去爬山，风景真的太美了！
+                </div>
+                <div class="moment-image">
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="风景照片">
+                </div>
+                <div class="moment-actions">
+                    <div class="action-btn like-btn" data-likes="18">
+                        <i class="far fa-heart"></i>
+                        <span class="like-count">18</span>
+                    </div>
+                    <div class="action-btn">
+                        <i class="far fa-comment"></i>
+                        <span>5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置页面 -->
+    <div class="page" id="settings-page">
+        <div class="settings-list">
+            <div class="settings-item">
+                <div class="settings-icon"><i class="fas fa-user"></i></div>
+                <div class="settings-content">
+                    <div class="settings-name">账号与安全</div>
+                    <div class="settings-desc">微信号、密码、手机号</div>
+                </div>
+                <div class="settings-arrow"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-icon"><i class="fas fa-bell"></i></div>
+                <div class="settings-content">
+                    <div class="settings-name">新消息通知</div>
+                    <div class="settings-desc">声音、振动、免打扰</div>
+                </div>
+                <div class="settings-arrow"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-icon"><i class="fas fa-lock"></i></div>
+                <div class="settings-content">
+                    <div class="settings-name">隐私</div>
+                    <div class="settings-desc">好友权限、朋友圈</div>
+                </div>
+                <div class="settings-arrow"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <div class="settings-item" id="memory-game-item">
+                <div class="settings-icon"><i class="fas fa-gamepad"></i></div>
+                <div class="settings-content">
+                    <div class="settings-name">记忆力测试</div>
+                    <div class="settings-desc">点击测试你的记忆力</div>
+                </div>
+                <div class="settings-arrow"><i class="fas fa-chevron-right"></i></div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-icon"><i class="fas fa-question-circle"></i></div>
+                <div class="settings-content">
+                    <div class="settings-name">关于微信</div>
+                    <div class="settings-desc">版本信息、帮助与反馈</div>
+                </div>
+                <div class="settings-arrow"><i class="fas fa-chevron-right"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 微信底部 -->
+    <div class="wechat-footer">
+        <div class="footer-item active" data-page="chat-list-page">
+            <i class="fas fa-comment"></i>
+            <span>对话</span>
+        </div>
+        <div class="footer-item" data-page="dog-page">
+            <i class="fas fa-paw"></i>
+            <span>小狗</span>
+        </div>
+        <div class="footer-item" data-page="friends-page">
+            <i class="fas fa-user-friends"></i>
+            <span>朋友</span>
+        </div>
+        <div class="footer-item" data-page="settings-page">
+            <i class="fas fa-cog"></i>
+            <span>设置</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 页面切换功能
+    const footerItems = document.querySelectorAll('.footer-item');
+    const pages = document.querySelectorAll('.page');
+    const chatPages = document.querySelectorAll('.chat-page');
+    const pageTitle = document.getElementById('page-title');
+    const backBtn = document.getElementById('back-btn');
+    const backToListBtns = document.querySelectorAll('.back-to-list');
+
+    footerItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const pageId = this.getAttribute('data-page');
+            
+            // 更新底部导航激活状态
+            footerItems.forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            
+            // 隐藏所有页面
+            pages.forEach(page => page.classList.remove('active'));
+            chatPages.forEach(page => page.classList.remove('active'));
+            
+            // 显示对应页面
+            document.getElementById(pageId).classList.add('active');
+            
+            // 更新页面标题
+            updatePageTitle(pageId);
+        });
+    });
+
+    function updatePageTitle(pageId) {
+        const titles = {
+            'chat-list-page': '微信',
+            'dog-page': '小狗表白',
+            'friends-page': '朋友圈',
+            'settings-page': '设置'
+        };
+        pageTitle.textContent = titles[pageId] || '微信';
+    }
+
+    // 返回按钮功能
+    backBtn.addEventListener('click', function() {
+        // 如果在聊天对话框页面，返回聊天列表
+        const activeChatPage = document.querySelector('.chat-page.active');
+        if (activeChatPage) {
+            activeChatPage.classList.remove('active');
+            document.getElementById('chat-list-page').classList.add('active');
+            pageTitle.textContent = '微信';
+            return;
+        }
+        
+        // 否则返回首页（对话列表）
+        footerItems.forEach(i => i.classList.remove('active'));
+        document.querySelector('.footer-item[data-page="chat-list-page"]').classList.add('active');
+        
+        pages.forEach(page => page.classList.remove('active'));
+        document.getElementById('chat-list-page').classList.add('active');
+        
+        pageTitle.textContent = '微信';
+    });
+
+    // 返回聊天列表功能
+    backToListBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelector('.chat-page.active').classList.remove('active');
+            document.getElementById('chat-list-page').classList.add('active');
+            pageTitle.textContent = '微信';
+        });
+    });
+
+    // 聊天功能
+    const chatItems = document.querySelectorAll('.chat-item');
+    const chatInputs = document.querySelectorAll('.input-area input');
+    const sendBtns = document.querySelectorAll('.input-area button');
+    const startGameBtn = document.getElementById('start-game-btn');
+
+    chatItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const chatId = this.getAttribute('data-id');
+            
+            // 隐藏聊天列表，显示对应聊天页面
+            document.getElementById('chat-list-page').classList.remove('active');
+            document.getElementById(`${chatId}-chat-page`).classList.add('active');
+            
+            // 更新页面标题
+            const names = {
+                'dog': '夏茗',
+                'girl': 'Liuu',
+                'boy': '要平安',
+                'prank': '神秘人'
+            };
+            pageTitle.textContent = names[chatId];
+            
+            // 滚动到底部
+            const chatMessages = document.querySelector(`#${chatId}-chat-page .chat-messages`);
+            if (chatMessages) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // 如果是神秘人聊天，触发整蛊
+            if (chatId === 'prank') {
+                setTimeout(() => {
+                    showPrank('神秘彩蛋', '你发现了一个隐藏的聊天对象！这是一个整蛊小彩蛋！');
+                }, 1000);
+            }
+        });
+    });
+
+    // 发送消息功能
+    sendBtns.forEach((btn, index) => {
+        btn.addEventListener('click', function() {
+            const input = chatInputs[index];
+            const activeChatPage = document.querySelector('.chat-page.active');
+            if (!activeChatPage || input.value.trim() === '') return;
+            
+            // 获取聊天消息区域
+            const chatMessages = activeChatPage.querySelector('.chat-messages');
+            
+            // 创建新消息
+            const messageTime = document.createElement('div');
+            messageTime.className = 'message-time';
+            messageTime.textContent = '刚刚';
+            
+            const message = document.createElement('div');
+            message.className = 'message self';
+            
+            const messageBubble = document.createElement('div');
+            messageBubble.className = 'message-bubble';
+            messageBubble.textContent = input.value;
+            
+            message.appendChild(messageBubble);
+            chatMessages.appendChild(messageTime);
+            chatMessages.appendChild(message);
+            
+            // 清空输入框
+            input.value = '';
+            
+            // 滚动到底部
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // 模拟回复
+            setTimeout(() => {
+                const replyTime = document.createElement('div');
+                replyTime.className = 'message-time';
+                replyTime.textContent = '刚刚';
+                
+                const reply = document.createElement('div');
+                reply.className = 'message other';
+                
+                const replyBubble = document.createElement('div');
+                replyBubble.className = 'message-bubble';
+                
+                // 根据聊天对象设置不同的回复
+                const chatId = activeChatPage.id.replace('-chat-page', '');
+                const replies = {
+                    'dog': ['汪汪！你说的对！', '主人你好聪明！', '我会一直陪着你的！', '好开心呀！'],
+                    'girl': ['是啊，我也这么觉得！', '哈哈，你真有趣！', '下次一起出去玩吧！', '谢谢你的建议！'],
+                    'boy': ['好啊，就这么定了！', '听起来不错！', '周末见！', '没问题！'],
+                    'prank': ['哈哈，你上当了！', '这是一个整蛊！', '没想到吧！', '惊喜不惊喜！']
+                };
+                
+                const randomIndex = Math.floor(Math.random() * replies[chatId].length);
+                replyBubble.textContent = replies[chatId][randomIndex];
+                
+                reply.appendChild(replyBubble);
+                chatMessages.appendChild(replyTime);
+                chatMessages.appendChild(reply);
+                
+                // 滚动到底部
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // 如果是神秘人聊天，随机触发整蛊
+                if (chatId === 'prank' && Math.random() > 0.5) {
+                    setTimeout(() => {
+                        triggerRandomPrank();
+                    }, 1000);
+                }
+            }, 1000);
+        });
+    });
+
+    // 按Enter键发送消息
+    chatInputs.forEach(input => {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const index = Array.from(chatInputs).indexOf(this);
+                sendBtns[index].click();
+            }
+        });
+    });
+
+    // 朋友圈点赞功能
+    const likeButtons = document.querySelectorAll('.like-btn');
+    
+    likeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            const countElement = this.querySelector('.like-count');
+            let count = parseInt(countElement.textContent);
+            const initialLikes = parseInt(this.getAttribute('data-likes'));
+            
+            if (this.classList.contains('liked')) {
+                // 取消点赞
+                this.classList.remove('liked');
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                count--;
+            } else {
+                // 点赞
+                this.classList.add('liked');
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                count++;
+            }
+            
+            countElement.textContent = count;
+        });
+    });
+
+    // 小狗页面交互逻辑
+    let noClickCount = 0;
+    const yesBtn = document.getElementById('yes-btn');
+    const noBtn = document.getElementById('no-btn');
+    const successMessage = document.getElementById('success-message');
+    const counter = document.querySelector('.counter');
+    const tail = document.querySelector('.tail');
+
+    // 对话框内容数组
+    const bubbleTexts = [
+        "选我选我！我会超乖的！",
+        "汪汪！和我一起玩嘛~",
+        "我有小骨头要分享给你！",
+        "你看我多可爱，选我吧！",
+        "我们一起去看星星好不好？"
+    ];
+
+    // 随机切换对话框内容
+    function changeBubbleText() {
+        const bubbles = document.querySelectorAll('.chat-bubble');
+        bubbles.forEach(bubble => {
+            const randomIndex = Math.floor(Math.random() * bubbleTexts.length);
+            bubble.textContent = bubbleTexts[randomIndex];
+        });
+    }
+
+    // 每3秒切换一次对话框内容
+    setInterval(changeBubbleText, 3000);
+
+    yesBtn.addEventListener('click', function() {
+        successMessage.style.display = "block";
+        noBtn.classList.add('hidden');
+        counter.classList.add('hidden');
+
+        // 小狗开心动画
+        document.querySelector('.mouth').style.width = '50px';
+        document.querySelector('.mouth').style.borderBottom = '4px solid #333';
+        tail.style.animation = 'wag 0.5s infinite alternate';
+
+        // 更改微信标题
+        pageTitle.textContent = "我们的小窝 🏡";
+    });
+
+    noBtn.addEventListener('click', function() {
+        noClickCount++;
+
+        // 更新计数器
+        counter.textContent = 5 - noClickCount;
+
+        // 缩小"不要"按钮
+        const currentScale = parseFloat(getComputedStyle(noBtn).transform.split(',')[3]) || 1;
+        noBtn.style.transform = `scale(${currentScale * 0.7})`;
+
+        // 增大"要"按钮
+        const yesScale = parseFloat(getComputedStyle(yesBtn).transform.split(',')[3]) || 1;
+        yesBtn.style.transform = `scale(${yesScale + 0.1})`;
+
+        // 小狗伤心动画
+        document.querySelector('.mouth').style.width = '25px';
+        document.querySelector('.mouth').style.borderBottom = '2px solid #333';
+        tail.style.animation = 'none';
+        tail.style.transform = 'rotate(-10deg)';
+
+        // 如果点击了5次，隐藏"不要"按钮
+        if (noClickCount >= 5) {
+            noBtn.classList.add('hidden');
+            counter.classList.add('hidden');
+
+            // 强制选择"要"
+            setTimeout(() => {
+                yesBtn.click();
+            }, 1500);
+        }
+    });
+
+    // 整蛊小游戏功能
+    const prankContainer = document.getElementById('prank-container');
+    const prankTitle = document.getElementById('prank-title');
+    const prankMessage = document.getElementById('prank-message');
+    const prankConfirm = document.getElementById('prank-confirm');
+    const prankCancel = document.getElementById('prank-cancel');
+
+    // 显示整蛊弹窗
+    function showPrank(title, message) {
+        prankTitle.textContent = title;
+        prankMessage.textContent = message;
+        prankContainer.style.display = 'flex';
+        
+        // 随机添加动画效果
+        const animations = ['shake', 'spin', 'bounce'];
+        const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+        prankContent.classList.add(randomAnimation);
+    }
+
+    // 隐藏整蛊弹窗
+    function hidePrank() {
+        prankContainer.style.display = 'none';
+        prankContent.classList.remove('shake', 'spin', 'bounce');
+    }
+
+    // 整蛊确认按钮
+    prankConfirm.addEventListener('click', function() {
+        hidePrank();
+        // 随机触发另一个整蛊
+        if (Math.random() > 0.5) {
+            setTimeout(() => {
+                showPrank('再来一个！', '你以为结束了？还有更多惊喜等着你！');
+            }, 1000);
+        }
+    });
+
+    // 整蛊取消按钮
+    prankCancel.addEventListener('click', function() {
+        // 取消按钮也有整蛊效果
+        if (Math.random() > 0.7) {
+            showPrank('取消失败！', '哈哈，取消按钮也是整蛊的一部分！');
+        } else {
+            hidePrank();
+        }
+    });
+
+    // 随机整蛊效果
+    function triggerRandomPrank() {
+        const pranks = [
+            {
+                title: '鬼畜模式',
+                message: '页面进入鬼畜模式！'
+            },
+            {
+                title: '反转屏幕',
+                message: '你的屏幕被反转了！'
+            },
+            {
+                title: '隐藏按钮',
+                message: '按钮消失了！'
+            },
+            {
+                title: '随机弹窗',
+                message: '惊喜弹窗！'
+            }
+        ];
+        
+        const randomPrank = pranks[Math.floor(Math.random() * pranks.length)];
+        showPrank(randomPrank.title, randomPrank.message);
+        
+        // 应用特殊效果
+        if (randomPrank.title === '鬼畜模式') {
+            document.body.classList.add('shake');
+            setTimeout(() => {
+                document.body.classList.remove('shake');
+            }, 2000);
+        } else if (randomPrank.title === '反转屏幕') {
+            document.body.style.transform = 'rotate(180deg)';
+            setTimeout(() => {
+                document.body.style.transform = 'rotate(0deg)';
+            }, 2000);
+        } else if (randomPrank.title === '隐藏按钮') {
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.style.opacity = '0';
+            });
+            setTimeout(() => {
+                buttons.forEach(btn => {
+                    btn.style.opacity = '1';
+                });
+            }, 2000);
+        }
+    }
+
+    // 整蛊触发区域
+    const prankTriggers = document.querySelectorAll('.prank-trigger');
+    let triggerClickCount = 0;
+    
+    prankTriggers.forEach(trigger => {
+        trigger.addEventListener('click', function() {
+            triggerClickCount++;
+            
+            if (triggerClickCount >= 3) {
+                showPrank('隐藏区域', '你发现了隐藏的触发区域！这是第3次点击！');
+                triggerClickCount = 0;
+            }
+        });
+    });
+
+    // 五子棋游戏
+    const gameContainer = document.getElementById('game-container');
+    const gameBoard = document.getElementById('game-board');
+    const gameInfo = document.getElementById('game-info');
+    const gameRestart = document.getElementById('game-restart');
+    const gameExit = document.getElementById('game-exit');
+    
+    let board = [];
+    const BOARD_SIZE = 15;
+    let currentPlayer = 'black'; // black为玩家，white为AI
+    let gameOver = false;
+    
+    // 初始化游戏
+    function initGame() {
+        board = [];
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            board[i] = [];
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                board[i][j] = null;
+            }
+        }
+        
+        // 清空棋盘
+        gameBoard.innerHTML = '';
+        
+        // 创建棋盘格子
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'game-cell';
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                cell.addEventListener('click', handleCellClick);
+                gameBoard.appendChild(cell);
+            }
+        }
+        
+        currentPlayer = 'black';
+        gameOver = false;
+        gameInfo.textContent = '黑子先行';
+    }
+    
+    // 处理点击棋盘
+    function handleCellClick(e) {
+        if (gameOver || currentPlayer !== 'black') return;
+        
+        const row = parseInt(e.target.dataset.row);
+        const col = parseInt(e.target.dataset.col);
+        
+        if (board[row][col] !== null) return;
+        
+        placePiece(row, col, 'black');
+        
+        if (checkWin(row, col, 'black')) {
+            gameOver = true;
+            showPrank('恭喜', '恭喜你比人机强一点！');
+            return;
+        }
+        
+        currentPlayer = 'white';
+        gameInfo.textContent = 'AI思考中...';
+        
+        // AI下棋
+        setTimeout(() => {
+            if (gameOver) return;
+            
+            const aiMove = getAIMove();
+            if (aiMove) {
+                placePiece(aiMove.row, aiMove.col, 'white');
+                
+                if (checkWin(aiMove.row, aiMove.col, 'white')) {
+                    gameOver = true;
+                    showPrank('呵呵', '呵呵，人机');
+                    return;
+                }
+                
+                currentPlayer = 'black';
+                gameInfo.textContent = '轮到你下棋';
+            }
+        }, 500);
+    }
+    
+    // 放置棋子
+    function placePiece(row, col, player) {
+        board[row][col] = player;
+        
+        const cell = document.querySelector(`.game-cell[data-row="${row}"][data-col="${col}"]`);
+        const piece = document.createElement('div');
+        piece.className = `game-piece ${player}`;
+        cell.appendChild(piece);
+    }
+    
+    // 检查是否获胜
+    function checkWin(row, col, player) {
+        // 检查四个方向：水平、垂直、对角线、反对角线
+        const directions = [
+            [0, 1],  // 水平
+            [1, 0],  // 垂直
+            [1, 1],  // 对角线
+            [1, -1]  // 反对角线
+        ];
+        
+        for (const [dx, dy] of directions) {
+            let count = 1; // 当前位置已经有一个棋子
+            
+            // 正向检查
+            for (let i = 1; i <= 4; i++) {
+                const r = row + dx * i;
+                const c = col + dy * i;
+                
+                if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE || board[r][c] !== player) {
+                    break;
+                }
+                
+                count++;
+            }
+            
+            // 反向检查
+            for (let i = 1; i <= 4; i++) {
+                const r = row - dx * i;
+                const c = col - dy * i;
+                
+                if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE || board[r][c] !== player) {
+                    break;
+                }
+                
+                count++;
+            }
+            
+            if (count >= 5) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    // 增强的AI下棋逻辑
+    function getAIMove() {
+        // 1. 检查AI是否有立即获胜的位置
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                if (board[i][j] === null) {
+                    board[i][j] = 'white';
+                    if (checkWin(i, j, 'white')) {
+                        board[i][j] = null;
+                        return { row: i, col: j };
+                    }
+                    board[i][j] = null;
+                }
+            }
+        }
+        
+        // 2. 检查玩家是否有立即获胜的位置，进行防守
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                if (board[i][j] === null) {
+                    board[i][j] = 'black';
+                    if (checkWin(i, j, 'black')) {
+                        board[i][j] = null;
+                        return { row: i, col: j };
+                    }
+                    board[i][j] = null;
+                }
+            }
+        }
+        
+        // 3. 评估每个空位的分数，选择最佳位置
+        let bestScore = -Infinity;
+        let bestMove = null;
+        
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                if (board[i][j] === null) {
+                    const score = evaluatePosition(i, j);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = { row: i, col: j };
+                    }
+                }
+            }
+        }
+        
+        return bestMove;
+    }
+    
+    // 评估位置分数
+    function evaluatePosition(row, col) {
+        let score = 0;
+        
+        // 中心位置有优势
+        const center = Math.floor(BOARD_SIZE / 2);
+        const distanceToCenter = Math.sqrt(Math.pow(row - center, 2) + Math.pow(col - center, 2));
+        score += (BOARD_SIZE - distanceToCenter) * 10;
+        
+        // 评估四个方向的棋型
+        const directions = [
+            [0, 1],  // 水平
+            [1, 0],  // 垂直
+            [1, 1],  // 对角线
+            [1, -1]  // 反对角线
+        ];
+        
+        for (const [dx, dy] of directions) {
+            // 模拟AI下在这个位置
+            board[row][col] = 'white';
+            const aiScore = evaluateDirection(row, col, dx, dy, 'white');
+            board[row][col] = null;
+            
+            // 模拟玩家下在这个位置
+            board[row][col] = 'black';
+            const playerScore = evaluateDirection(row, col, dx, dy, 'black');
+            board[row][col] = null;
+            
+            // 防守分数比进攻分数更重要
+            score += aiScore + playerScore * 1.5;
+        }
+        
+        return score;
+    }
+    
+    // 评估特定方向的棋型
+    function evaluateDirection(row, col, dx, dy, player) {
+        let score = 0;
+        let consecutive = 1; // 连续棋子数
+        let openEnds = 0; // 开放端数量
+        
+        // 正向检查
+        for (let i = 1; i <= 4; i++) {
+            const r = row + dx * i;
+            const c = col + dy * i;
+            
+            if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) {
+                break;
+            }
+            
+            if (board[r][c] === player) {
+                consecutive++;
+            } else if (board[r][c] === null) {
+                openEnds++;
+                break;
+            } else {
+                break;
+            }
+        }
+        
+        // 反向检查
+        for (let i = 1; i <= 4; i++) {
+            const r = row - dx * i;
+            const c = col - dy * i;
+            
+            if (r < 0 || r >= BOARD_SIZE || c < 0 || c >= BOARD_SIZE) {
+                break;
+            }
+            
+            if (board[r][c] === player) {
+                consecutive++;
+            } else if (board[r][c] === null) {
+                openEnds++;
+                break;
+            } else {
+                break;
+            }
+        }
+        
+        // 根据连续棋子数和开放端数量评分
+        if (consecutive >= 5) {
+            score += 100000; // 连五
+        } else if (consecutive === 4) {
+            if (openEnds === 2) {
+                score += 10000; // 活四
+            } else if (openEnds === 1) {
+                score += 1000; // 冲四
+            }
+        } else if (consecutive === 3) {
+            if (openEnds === 2) {
+                score += 1000; // 活三
+            } else if (openEnds === 1) {
+                score += 100; // 眠三
+            }
+        } else if (consecutive === 2) {
+            if (openEnds === 2) {
+                score += 100; // 活二
+            } else if (openEnds === 1) {
+                score += 10; // 眠二
+            }
+        }
+        
+        return score;
+    }
+    
+    // 开始五子棋游戏
+    startGameBtn.addEventListener('click', function() {
+        gameContainer.style.display = 'flex';
+        initGame();
+    });
+    
+    // 重新开始游戏
+    gameRestart.addEventListener('click', function() {
+        initGame();
+    });
+    
+    // 退出游戏
+    gameExit.addEventListener('click', function() {
+        gameContainer.style.display = 'none';
+    });
+    
+    // 记忆力测试游戏
+    const memoryContainer = document.getElementById('memory-container');
+    const memoryLevel = document.getElementById('memory-level');
+    const memoryNumber = document.getElementById('memory-number');
+    const memoryInput = document.getElementById('memory-input');
+    const memorySubmit = document.getElementById('memory-submit');
+    const memoryExit = document.getElementById('memory-exit');
+    
+    let memoryDigits = 5;
+    let currentLevel = 1;
+    let targetNumber = '';
+    
+    // 生成随机数字
+    function generateRandomNumber(digits) {
+        let number = '';
+        for (let i = 0; i < digits; i++) {
+            number += Math.floor(Math.random() * 10).toString();
+        }
+        return number;
+    }
+    
+    // 开始记忆力测试
+    function startMemoryGame() {
+        memoryContainer.style.display = 'flex';
+        memoryDigits = 5;
+        currentLevel = 1;
+        nextMemoryLevel();
+    }
+    
+    // 进入下一关
+    function nextMemoryLevel() {
+        memoryLevel.textContent = `第 ${currentLevel} 关`;
+        targetNumber = generateRandomNumber(memoryDigits);
+        memoryNumber.textContent = targetNumber;
+        memoryInput.value = '';
+        memoryInput.focus();
+        
+        // 3秒后隐藏数字
+        setTimeout(() => {
+            memoryNumber.textContent = '???';
+        }, 3000);
+    }
+    
+    // 检查答案
+    function checkMemoryAnswer() {
+        if (memoryInput.value === targetNumber) {
+            if (memoryDigits < 10) {
+                memoryDigits++;
+                currentLevel++;
+                nextMemoryLevel();
+            } else {
+                showPrank('恭喜', '恭喜你通关！');
+                memoryContainer.style.display = 'none';
+            }
+        } else {
+            showPrank('记忆失败', '记忆失败！请再试一次！');
+            memoryContainer.style.display = 'none';
+        }
+    }
+    
+    // 提交答案
+    memorySubmit.addEventListener('click', checkMemoryAnswer);
+    
+    // 按Enter键提交答案
+    memoryInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            checkMemoryAnswer();
+        }
+    });
+    
+    // 退出记忆力测试
+    memoryExit.addEventListener('click', function() {
+        memoryContainer.style.display = 'none';
+    });
+    
+    // 设置页面记忆力测试游戏
+    const memoryGameItem = document.getElementById('memory-game-item');
+    memoryGameItem.addEventListener('click', function() {
+        startMemoryGame();
+    });
+</script>
+</body>
+</html>
